@@ -34,7 +34,7 @@ curl https://get.dgraph.io -sSf | bash -s -- --systemd
 With Environment Variables:
 
 ```shell
-curl https://get.dgraph.io -sSf | VERSION=v20.03.1-beta1 bash
+curl https://get.dgraph.io -sSf | VERSION=v21.03.0-beta1 bash
 ```
 
 ## Flags
@@ -45,7 +45,7 @@ Add `-s --` before the flags.
 
 >`-s | --systemd`: Automatically create Dgraph’s installation as Systemd services (default: “n”).
 
->`-v | --version`: Choose Dgraph’s version manually (default: The latest stable release, you can do tag combinations e.g v20.03.1-beta1 or -rc1).
+>`-v | --version`: Choose Dgraph’s version manually (default: The latest stable release, you can do tag combinations e.g v21.03.0-beta1 or -rc1).
 
 
 ## Environment Variables
@@ -56,6 +56,15 @@ Add `-s --` before the flags.
 
 >`VERSION`: Choose Dgraph’s version manually (default: The latest stable release).
 
+>`DATA_PATH`: Set Dgraph’s data path in Systemd service (default: /var/lib/dgraph).
+
+>`LOG_PATH`: Set Dgraph’s log path in Systemd service (default: /var/log/dgraph).
+
+>`ZERO_FLAGS`: Set additional flags for Zero in Systemd service (default: unset).
+
+>`ALPHA_FLAGS`: Set additional flags for Alpha in Systemd service (default: unset).
+
+>`START_ALPHA`: Start Alpha in Systemd service. Setting this to “n“ will start only Zero service (default: “y“).
 
 # Install Dgraph on Windows
 
@@ -81,7 +90,7 @@ iwr https://get.dgraph.io/windows -useb | iex
 With Environment Variables:
 
 ```shell
-$Version="v20.03.1"; $acceptLicense="yes"; iwr http://get.dgraph.io/windows -useb | iex
+$Version="v21.03.0"; $acceptLicense="yes"; iwr http://get.dgraph.io/windows -useb | iex
 ```
 
 Download the script and run locally
@@ -93,23 +102,23 @@ iwr http://get.dgraph.io/windows -useb -outf install.ps1; .\install.ps1
 Run locally with flags
 
 ```shell
-iwr http://get.dgraph.io/windows -useb -outf install.ps1; .\install.ps1 -version v20.03.1 -acceptLicense yes
+iwr http://get.dgraph.io/windows -useb -outf install.ps1; .\install.ps1 -version v21.03.0 -acceptLicense yes
 ```
 
 ## Flags
 
 >`-acceptLicense`: Automatically agree to the terms of the Dgraph Community License (default: ask).
 
->`-version`: Choose Dgraph’s version manually (default: The latest stable release, you can do tag combinations e.g v20.03.1-beta1 or -rc1).
+>`-version`: Choose Dgraph’s version manually (default: The latest stable release, you can do tag combinations e.g v21.03.0-beta1 or -rc1).
 
 ## Environment Variables
 
->`$Version="v20.03.1"`: Choose Dgraph’s version manually (default: The latest stable release).
+>`$Version="v21.03.0"`: Choose Dgraph’s version manually (default: The latest stable release).
 
 >`$acceptLicense="yes"`: Choose Dgraph’s version manually (default: The latest stable release, you can do tag combinations e.g v2.0.0-beta1 or -rc1).
 
 ## Compatibility
 
-This Scrip works on Windows 10, some Windows containers and Windows Server 2016 only.
+This Script works on Windows 10, some Windows containers and Windows Server 2016 only.
 
 <!-- Todo: Check Compatibility with Windows Subsystem for Linux. -->

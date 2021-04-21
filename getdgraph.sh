@@ -23,6 +23,13 @@ RESET='\033[0m'
 
 acceptLower=$(echo "$ACCEPT_LICENSE" | dd  conv=lcase 2> /dev/null)
 systemdLower=$(echo "$INSTALL_IN_SYSTEMD" | dd  conv=lcase 2> /dev/null)
+startAlphaLower=$(echo "$START_ALPHA" | dd  conv=lcase 2> /dev/null)
+
+DGRAPH_DATA_PATH=${DATA_PATH:-/var/lib/dgraph}
+DGRAPH_LOG_PATH=${LOG_PATH:-/var/log/dgraph}
+DGRAPH_ZERO_FLAGS=${ZERO_FLAGS:-}
+DGRAPH_ALPHA_FLAGS=${ALPHA_FLAGS:-}
+DGRAPH_START_ALPHA=${startAlphaLower:-y}
 
 ACCEPT_LICENSE=${acceptLower:-n}
 INSTALL_IN_SYSTEMD=${systemdLower:-n}
@@ -238,7 +245,7 @@ addGroup() {
 	else
 	echo 'user not found -  creating one...' 1>&2
 	$sudo_cmd groupadd --system dgraph
-	$sudo_cmd useradd --system -d /var/lib/dgraph -s /bin/false -g dgraph dgraph
+	$sudo_cmd useradd --system -d "$DGRAPH_DATA_PATH" -s /bin/false -g dgraph dgraph
 	fi
 	true
 }
@@ -259,15 +266,15 @@ render_template() {
 
 setup_systemD() {
 
-	pathToTemplate="https://raw.githubusercontent.com/dgraph-io/Install-Dgraph/master/contrib"
+	pathToTemplate="https://raw.githubusercontent.com/dnzprmksz/Install-Dgraph/feature/systemd-env-vars/contrib"
 	systemdPath="/etc/systemd/system"
-	dgraphPath="/var/lib/dgraph"
 	tmplTemp="/tmp/dgraph"
 
-	$sudo_cmd mkdir -p $dgraphPath
-	$sudo_cmd mkdir -p $dgraphPath/{p,w,zw}
-	$sudo_cmd mkdir -p /var/log/dgraph
-	$sudo_cmd chown -R dgraph:dgraph /var/{lib,log}/dgraph
+	$sudo_cmd mkdir -p "$DGRAPH_DATA_PATH"
+	$sudo_cmd mkdir -p "$DGRAPH_DATA_PATH"/{p,w,zw}
+	$sudo_cmd mkdir -p "$DGRAPH_LOG_PATH"
+	$sudo_cmd chown -R dgraph:dgraph "$DGRAPH_LOG_PATH"
+	$sudo_cmd chown -R dgraph:dgraph "$DGRAPH_DATA_PATH"
 	$sudo_cmd mkdir -p $tmplTemp
 
 	_getTmpl="$pathToTemplate/service.tmpl"
@@ -279,7 +286,7 @@ setup_systemD() {
 	gen "dgraph.io Web UI" \
 		"" \
 		"" \
-		"dgraph-ratel" \
+		"/usr/local/bin/dgraph-ratel" \
 		"" \
 		$systemdPath/dgraph-ui.service
 
@@ -288,7 +295,7 @@ setup_systemD() {
 	gen "dgraph.io Alpha instance" \
 		"Requires=dgraph-zero.service" \
 		"" \
-		"dgraph alpha --lru_mb 2048 -p /var/lib/dgraph/p -w /var/lib/dgraph/w" \
+		"/usr/local/bin/dgraph alpha -p $DGRAPH_DATA_PATH/p -w $DGRAPH_DATA_PATH/w $DGRAPH_ALPHA_FLAGS" \
 		"dgraph-zero.service" \
 		$systemdPath/dgraph-alpha.service
 
@@ -297,7 +304,7 @@ setup_systemD() {
 	gen "dgraph.io Zero instance" \
 		"" \
 		"RequiredBy=dgraph-alpha.service" \
-		"dgraph zero --wal /var/lib/dgraph/zw" \
+		"/usr/local/bin/dgraph zero --wal $DGRAPH_DATA_PATH/zw $DGRAPH_ZERO_FLAGS" \
 		"" \
 		$systemdPath/dgraph-zero.service
 
@@ -306,7 +313,12 @@ setup_systemD() {
 	$sudo_cmd systemctl daemon-reload
 
 	$sudo_cmd systemctl enable dgraph-alpha
-	$sudo_cmd systemctl start dgraph-alpha
+
+	if [ "$DGRAPH_START_ALPHA" = "y" ]; then
+	  $sudo_cmd systemctl start dgraph-alpha
+  else
+    $sudo_cmd systemctl start dgraph-zero
+  fi
 
 	$sudo_cmd systemctl enable dgraph-ui
 	$sudo_cmd systemctl start dgraph-ui
@@ -340,7 +352,7 @@ verify_system() {
 
 print_usage() {
 	echo "Usage:"
-	echo "	-v='' | --version='v20.07.2'	: Choose Dgraph's version manually."
+	echo "	-v='' | --version='v21.03.0'	: Choose Dgraph's version manually."
 	echo "	-s    | --systemd		: Install Dgraph as a service."
 	echo "	-y    | --accept-license	: Automatically agree to the terms of the Dgraph Community License."
 }

@@ -281,15 +281,6 @@ setup_systemD() {
 
 	$sudo_cmd curl -LJ --progress-bar "$_getTmpl" -o "$tmplTemp/service.tmpl"
 
-	echo "#### Creating dgraph-ui.service ..."
-
-	gen "dgraph.io Web UI" \
-		"" \
-		"" \
-		"/usr/local/bin/dgraph-ratel" \
-		"" \
-		$systemdPath/dgraph-ui.service
-
 	echo "#### Creating dgraph-alpha.service ..."
 
 	gen "dgraph.io Alpha instance" \
@@ -319,9 +310,6 @@ setup_systemD() {
   else
     $sudo_cmd systemctl start dgraph-zero
   fi
-
-	$sudo_cmd systemctl enable dgraph-ui
-	$sudo_cmd systemctl start dgraph-ui
 
 	true
 
